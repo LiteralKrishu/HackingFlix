@@ -1,3 +1,2 @@
 # HackingFlix
-Just a random HTML,CSS,JS project
-Website Link: 
+Just a random HTML,CSS,JS Project, Website Link :
