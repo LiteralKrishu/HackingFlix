@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackingFlix - Cybersecurity LMS & CTF Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Avenir Next', sans-serif;
+      color: #D0D0D0;
+    }
+
+    body {
+      background: #0A0A1F;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Neuropol', sans-serif;
+      color: #FFFFFF;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 30px rgba(0, 212, 255, 0.6);
+      position: relative;
+      margin-bottom: 30px;
+      line-height: 1.2;
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+    }
+
+    h3 {
+      font-size: 2rem;
+      text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+    }
+
+    h1::after, h2::after, h3::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, #00D4FF, #FF00FF);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+      animation: pulseBorder 2s infinite;
+    }
+
+    @keyframes pulseBorder {
+      0% { transform: translateX(-50%) scaleX(1); }
+      50% { transform: translateX(-50%) scaleX(1.1); }
+      100% { transform: translateX(-50%) scaleX(1); }
+    }
+
+    p {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+
+    a {
+      color: #00D4FF;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    a:hover {
+      color: #FF00FF;
+      text-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+    }
+
+    button {
+      background: rgba(0, 212, 255, 0.1);
+      border: 2px solid #00D4FF;
+      backdrop-filter: blur(12px);
+      padding: 15px 35px;
+      color: #FFFFFF;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      margin: 15px 0;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+      transition: all 0.5s ease;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      border-color: #FF00FF;
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+      transform: scale(1.05);
+    }
+
+    /* Canvas for 3D Background */
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Dark Overlay with Gradient */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 10, 31, 0.9));
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Navigation Bar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 212, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(0, 212, 255, 0.4);
+      padding: 25px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
+    }
+
+    nav .logo {
+      font-family: 'Neuropol', sans-serif;
+      font-size: 32px;
+      color: #FFFFFF;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    nav .logo:hover {
+      text-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+      color: #FF00FF;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 40px;
+    }
+
+    nav ul li a {
+      font-size: 1.2rem;
+      padding-bottom: 5px;
+      position: relative;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    nav ul li a:hover::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #FF00FF;
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+    }
+
+    /* Main Content */
+    main {
+      position: relative;
+      z-index: 5;
+      padding: 120px 60px;
+      min-height: 100vh;
+    }
+
+    section {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    /* Section Content Wrapper */
+    .section-content {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      align-items: center;
+    }
+
+    /* Card Grid for Multiple Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 50px;
+      width: 100%;
+    }
+
+    /* Glassmorphism Card */
+    .card {
+      background: rgba(0, 212, 255, 0.05);
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 40px rgba(0, 212, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      animation: neonBorder 3s infinite;
+    }
+
+    @keyframes neonBorder {
+      0% { border-color: #00D4FF; box-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
+      25% { border-color: #FF00FF; box-shadow: 0 0 20px rgba(255, 0, 255, 0.6); }
+      50% { border-color: #00FF00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.6); }
+      75% { border-color: #AA00FF; box-shadow: 0 0 20px rgba(170, 0, 255, 0.6); }
+      100% { border-color: #00D4FF; box-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 50px rgba(0, 212, 255, 0.5);
+    }
+
+    /* Form Styles */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    form label {
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+
+    form input {
+      background: rgba(0, 212, 255, 0.05);
+      border: 2px solid rgba(0, 212, 255, 0.5);
+      padding: 15px;
+      border-radius: 5px;
+      color: #FFFFFF;
+      font-size: 1.1rem;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    form input:focus {
+      border-color: #FF00FF;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+    }
+
+    /* Leaderboard Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 40px;
+    }
+
+    table th, table td {
+      padding: 20px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    table th {
+      background: rgba(0, 212, 255, 0.1);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+    }
+
+    /* Glitch Effect for Headings */
+    .glitch:hover {
+      animation: glitch 0.5s infinite;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); color: #FF00FF; }
+      40% { transform: translate(2px, -2px); color: #00FF00; }
+      60% { transform: translate(-2px, 2px); color: #AA00FF; }
+      80% { transform: translate(2px, -2px); color: #00D4FF; }
+      100% { transform: translate(0); }
+    }
+
+    /* Full-Screen Flash Effect */
+    .flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      main {
+        padding: 100px 30px;
+      }
+
+      nav {
+        padding: 20px 30px;
+      }
+
+      nav ul {
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        background: rgba(0, 212, 255, 0.05);
+        backdrop-filter: blur(12px);
+        width: 100%;
+        padding: 30px;
+        display: none;
+        gap: 20px;
+      }
+
+      nav.active ul {
+        display: flex;
+      }
+
+      nav .menu-toggle {
+        display: block;
+        cursor: pointer;
+        font-size: 1.8rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      h3 {
+        font-size: 1.6rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+      }
+
+      .card {
+        padding: 30px;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 769px) {
+      nav .menu-toggle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Three.js Canvas -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Dark Overlay -->
+  <div id="overlay"></div>
+
+  <!-- Flash Effect Container -->
+  <div id="flash" class="flash"></div>
+
+  <!-- Navigation -->
+  <nav role="navigation" aria-label="Main navigation">
+    <div class="logo">HackingFlix</div>
+    <span class="menu-toggle" onclick="toggleMenu()">☰</span>
+    <ul>
+      <li><a href="#" onclick="showSection('landing'); triggerNavFlash()">Home</a></li>
+      <li><a href="#" onclick="showSection('homepage'); triggerNavFlash()">Academy</a></li>
+      <li><a href="#" onclick="showSection('labs'); triggerNavFlash()">Labs</a></li>
+      <li><a href="#" onclick="showSection('ctf'); triggerNavFlash()">CTF</a></li>
+      <li><a href="#" onclick="showSection('community'); triggerNavFlash()">Community</a></li>
+      <li><a href="#" onclick="showSection('job-portal'); triggerNavFlash()">Jobs</a></li>
+      <li><a href="#" onclick="showSection('events'); triggerNavFlash()">Events</a></li>
+      <li><a href="#" onclick="showSection('login'); triggerNavFlash()">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Landing Page -->
+    <section id="landing" class="active">
+      <div class="section-content">
+        <h1 class="glitch">Unlock Your Cyber Future</h1>
+        <p>Dive into the ultimate cybersecurity experience with HackingFlix.</p>
+        <button onclick="showSection('signup'); triggerFlash('#00D4FF')">Get Started</button>
+      </div>
+    </section>
+
+    <!-- Testimonial Page -->
+    <section id="testimonial">
+      <div class="section-content">
+        <h1 class="glitch">User Testimonials</h1>
+        <div class="card-grid">
+          <div class="card" onmouseover="glowCard(this, '#FF00FF')" onclick="glowCard(this, '#00FF00')">
+            <p>"HackingFlix is a game-changer for cybersecurity!"</p>
+            <p>- Alex, Cybersecurity Analyst</p>
+          </div>
+          <div class="card" onmouseover="glowCard(this, '#FF00FF')" onclick="glowCard(this, '#00FF00')">
+            <p>"The best platform for ethical hacking."</p>
+            <p>- Priya, Ethical Hacker</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sign Up Page -->
+    <section id="signup">
+      <div class="section-content">
+        <h1 class="glitch">Join HackingFlix</h1>
+        <form onsubmit="handleSignup(event)">
+          <label for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" required aria-label="Email address">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" required aria-label="Password">
+          <button type="submit" onclick="triggerFlash('#FF00FF')">Sign Up</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Login Page -->
+    <section id="login">
+      <div class="section-content">
+        <h1 class="glitch">Login to Your Account</h1>
+        <form onsubmit="handleLogin(event)">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" required aria-label="Email address">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required aria-label="Password">
+          <button type="submit" onclick="triggerFlash('#00FF00')">Login</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- User Journey Pages -->
+    <section id="user-journey">
+      <div class="section-content">
+        <h1 class="glitch">Your Journey</h1>
+        <p>Track your progress and achievements.</p>
+        <div class="card" onmouseover="glowCard(this, '#AA00FF')" onclick="glowCard(this, '#00D4FF')">
+          <h3>Points: <span id="points">1500</span></h3>
+          <h3>Badges: <span id="badges">5</span></h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Homepage -->
+    <section id="homepage">
+      <div class="section-content">
+        <h1 class="glitch">Welcome to the Academy</h1>
+        <p>Explore our offerings and start your journey.</p>
+        <div class="button-group">
+          <button onclick="showSection('academy-home'); triggerFlash('#00D4FF')">Go to Academy</button>
+          <button onclick="showSection('labs'); triggerFlash('#FF00FF')">Visit Labs</button>
+          <button onclick="showSection('ctf'); triggerFlash('#00FF00')">Try CTF Challenges</button>
+          <button onclick="showSection('community'); triggerFlash('#AA00FF')">Join Community</button>
+          <button onclick="showSection('job-portal'); triggerFlash('#00D4FF')">Job Portal</button>
+          <button onclick="showSection('events'); triggerFlash('#FF00FF')">Events</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Dashboard -->
+    <section id="dashboard">
+      <div class="section-content">
+        <h1 class="glitch">User Dashboard</h1>
+        <div class="card" onmouseover="glowCard(this, '#00FF00')" onclick="glowCard(this, '#AA00FF')">
+          <h3>Welcome Back!</h3>
+          <p>Points: <span id="dashboard-points">1500</span></p>
+          <p>Rank: <span id="dashboard-rank">Top 10%</span></p>
+          <button onclick="showSection('user-journey'); triggerFlash('#00D4FF')">View Journey</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academy Home Page -->
+    <section id="academy-home">
+      <div class="section-content">
+        <h1 class="glitch">Academy Courses</h1>
+        <div class="card-grid">
+          <div class="card" onmouseover="glowCard(this, '#FF00FF')" onclick="glowCard(this, '#00FF00')">
+            <h3>Ethical Hacking 101</h3>
+            <p>Learn the fundamentals of ethical hacking.</p>
+            <button onclick="showSection('course-detail'); triggerFlash('#AA00FF')">View Details</button>
+          </div>
+          <div class="card" onmouseover="glowCard(this, '#FF00FF')" onclick="glowCard(this, '#00FF00')">
+            <h3>Advanced Penetration Testing</h3>
+            <p>Master advanced penetration testing techniques.</p>
+            <button onclick="showSection('course-detail'); triggerFlash('#AA00FF')">View Details</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Course Detail Page -->
+    <section id="course-detail">
+      <div class="section-content">
+        <h1 class="glitch">Course Details</h1>
+        <div class="card" onmouseover="glowCard(this, '#00D4FF')" onclick="glowCard(this, '#FF00FF')">
+          <h3>Ethical Hacking 101</h3>
+          <p>Duration: 4 weeks</p>
+          <p>Level: Beginner</p>
+          <button onclick="showSection('checkout'); triggerFlash('#00FF00')">Enroll Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkout Page -->
+    <section id="checkout">
+      <div class="section-content">
+        <h1 class="glitch">Checkout</h1>
+        <form onsubmit="handleCheckout(event)">
+          <label for="card-number">Card Number</label>
+          <input type="text" id="card-number" required aria-label="Card number">
+          <label for="card-expiry">Expiry Date</label>
+          <input type="text" id="card-expiry" required aria-label="Expiry date">
+          <button type="submit" onclick="triggerFlash('#AA00FF')">Purchase</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Course Purchase Successful Page -->
+    <section id="purchase-success">
+      <div class="section-content">
+        <h1 class="glitch">Purchase Successful</h1>
+        <p>Congratulations! You've enrolled in Ethical Hacking 101.</p>
+        <button onclick="showSection('course-player'); triggerFlash('#00D4FF')">Start Course</button>
+      </div>
+    </section>
+
+    <!-- Course Player Page -->
+    <section id="course-player">
+      <div class="section-content">
+        <h1 class="glitch">Course Player</h1>
+        <div class="card" onmouseover="glowCard(this, '#FF00FF')" onclick="glowCard(this, '#00FF00')">
+          <h3>Lesson 1: Introduction</h3>
+          <p>Watch the video and complete the quiz to proceed.</p>
+          <button onclick="alert('Video Played!'); triggerFlash('#AA00FF')">Play Video</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Labs -->
+    <section id="labs">
+      <div class="section-content">
+        <h1 class="glitch">Labs</h1>
+        <div class="card" onmouseover="glowCard(this, '#00D4FF')" onclick="glowCard(this, '#FF00FF')">
+          <h3>SQL Injection Lab</h3>
+          <p>Practice SQL injection in a safe environment.</p>
+          <button onclick="alert('Lab Started!'); triggerFlash('#00FF00')">Start Lab</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTF Portal -->
+    <section id="ctf">
+      <div class="section-content">
+        <h1 class="glitch">CTF Portal</h1>
+        <p>Compete in Capture The Flag challenges.</p>
+        <button onclick="showSection('challenges'); triggerFlash('#AA00FF')">View Challenges</button>
+      </div>
+    </section>
+
+    <!-- Challenges -->
+    <section id="challenges">
+      <div class="section-content">
+        <h1 class="glitch">Challenges</h1>
+        <div class="card" onmouseover="glowCard(this, '#00FF00')" onclick="glowCard(this, '#FF00FF')">
+          <h3>Challenge 1: Crack the Code</h3>
+          <p>Difficulty: Easy</p>
+          <button onclick="alert('Challenge Started!'); triggerFlash('#00D4FF')">Start Challenge</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community -->
+    <section id="community">
+      <div class="section-content">
+        <h1 class="glitch">Community</h1>
+        <p>Connect with other cybersecurity enthusiasts.</p>
+        <div class="card" onmouseover="glowCard(this, '#AA00FF')" onclick="glowCard(this, '#00FF00')">
+          <h3>Recent Post</h3>
+          <p>"Just solved my first CTF challenge! 🎉"</p>
+          <p>- User123</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Job Portal -->
+    <section id="job-portal">
+      <div class="section-content">
+        <h1 class="glitch">Job Portal</h1>
+        <div class="card" onmouseover="glowCard(this, '#00D4FF')" onclick="glowCard(this, '#FF00FF')">
+          <h3>Cybersecurity Analyst</h3>
+          <p>Location: Remote</p>
+          <button onclick="alert('Applied!'); triggerFlash('#00FF00')">Apply Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Events -->
+    <section id="events">
+      <div class="section-content">
+        <h1 class="glitch">Events</h1>
+        <div class="card" onmouseover="glowCard(this, '#AA00FF')" onclick="glowCard(this, '#00D4FF')">
+          <h3>Hackathon 2025</h3>
+          <p>Date: June 1, 2025</p>
+          <button onclick="alert('Registered!'); triggerFlash('#FF00FF')">Register</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+  <script>
+    // Navigation Toggle for Mobile
+    function toggleMenu() {
+      document.querySelector('nav').classList.toggle('active');
+    }
+
+    // Section Toggling
+    function showSection(sectionId) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+      });
+      const targetSection = document.getElementById(sectionId);
+      targetSection.classList.add('active');
+      gsap.fromTo(targetSection, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 });
+      update3DObject(sectionId);
+    }
+
+    // Mock Form Handlers
+    function handleSignup(event) {
+      event.preventDefault();
+      alert('Sign Up Successful!');
+      showSection('login');
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      alert('Login Successful!');
+      showSection('dashboard');
+    }
+
+    function handleCheckout(event) {
+      event.preventDefault();
+      alert('Processing Payment...');
+      setTimeout(() => showSection('purchase-success'), 1000);
+    }
+
+    // Color Flash Effect
+    function triggerFlash(color) {
+      const flash = document.getElementById('flash');
+      flash.style.background = color;
+      flash.style.opacity = '0.5';
+      gsap.to(flash, { opacity: 0, duration: 0.5 });
+      createParticleBurst(color);
+    }
+
+    // Navigation Flash Effect
+    function triggerNavFlash() {
+      const colors = ['#00D4FF', '#FF00FF', '#00FF00', '#AA00FF'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const nav = document.querySelector('nav');
+      nav.style.borderColor = randomColor;
+      nav.style.boxShadow = `0 0 30px ${randomColor}`;
+      gsap.to(nav, { boxShadow: `0 0 25px ${randomColor}`, duration: 0.5 });
+    }
+
+    // Card Glow Effect
+    function glowCard(element, color) {
+      element.style.borderColor = color;
+      element.style.boxShadow = `0 8px 50px ${color}`;
+    }
+
+    // Three.js Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = 5;
+
+    // Holographic Grid
+    const gridGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
+    const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x00D4FF, wireframe: true, transparent: true, opacity: 0.2 });
+    const grid = new THREE.Mesh(gridGeometry, gridMaterial);
+    grid.rotation.x = Math.PI / 2;
+    grid.position.y = -2;
+    scene.add(grid);
+
+    // Page-Specific 3D Object
+    let currentObject = null;
+    const objectMaterials = new THREE.MeshPhongMaterial({ color: 0x00D4FF, emissive: 0x00D4FF, emissiveIntensity: 0.8, transparent: true, opacity: 0.6 });
+    const objects = {
+      landing: new THREE.Mesh(new THREE.OctahedronGeometry(1), objectMaterials),
+      testimonial: new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), objectMaterials),
+      signup: new THREE.Mesh(new THREE.TetrahedronGeometry(1), objectMaterials),
+      login: new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), objectMaterials),
+      'user-journey': new THREE.Mesh(new THREE.ConeGeometry(0.8, 1.5, 32), objectMaterials),
+      homepage: new THREE.Mesh(new THREE.DodecahedronGeometry(1), objectMaterials),
+      dashboard: new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.2, 16, 100), objectMaterials),
+      'academy-home': new THREE.Mesh(new THREE.IcosahedronGeometry(1), objectMaterials),
+      'course-detail': new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32), objectMaterials),
+      checkout: new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), objectMaterials),
+      'purchase-success': new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), objectMaterials),
+      'course-player': new THREE.Mesh(new THREE.OctahedronGeometry(1), objectMaterials),
+      labs: new THREE.Mesh(new THREE.TetrahedronGeometry(1), objectMaterials),
+      ctf: new THREE.Mesh(new THREE.DodecahedronGeometry(1), objectMaterials),
+      challenges: new THREE.Mesh(new THREE.ConeGeometry(0.8, 1.5, 32), objectMaterials),
+      community: new THREE.Mesh(new THREE.IcosahedronGeometry(1), objectMaterials),
+      'job-portal': new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.2, 16, 100), objectMaterials),
+      events: new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32), objectMaterials),
+    };
+
+    function update3DObject(sectionId) {
+      if (currentObject) scene.remove(currentObject);
+      currentObject = objects[sectionId] || objects.landing;
+      currentObject.position.y = -0.5;
+      scene.add(currentObject);
+    }
+    update3DObject('landing');
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0x00D4FF, 2, 100);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
+
+    // Background Particles
+    const particleGeometry = new THREE.BufferGeometry();
+    const particleCount = 100;
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 20;
+      positions[i + 1] = (Math.random() - 0.5) * 10 - 2;
+      positions[i + 2] = (Math.random() - 0.5) * 20;
+    }
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMaterial = new THREE.PointsMaterial({ color: 0x00D4FF, size: 0.05 });
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particles);
+
+    // Particle Burst for Button Clicks
+    let burstParticles = [];
+    function createParticleBurst(color) {
+      const burstGeometry = new THREE.BufferGeometry();
+      const burstCount = 50;
+      const burstPositions = new Float32Array(burstCount * 3);
+      for (let i = 0; i < burstCount * 3; i += 3) {
+        burstPositions[i] = (Math.random() - 0.5) * 5;
+        burstPositions[i + 1] = (Math.random() - 0.5) * 5;
+        burstPositions[i + 2] = (Math.random() - 0.5) * 5;
+      }
+      burstGeometry.setAttribute('position', new THREE.BufferAttribute(burstPositions, 3));
+      const burstMaterial = new THREE.PointsMaterial({ color: parseInt(color.replace('#', '0x')), size: 0.1 });
+      const burst = new THREE.Points(burstGeometry, burstMaterial);
+      scene.add(burst);
+      burstParticles.push(burst);
+      gsap.to(burst.position, { y: burst.position.y + 5, duration: 1, onComplete: () => scene.remove(burst) });
+    }
+
+    // Mouse Trail
+    const trailGeometry = new THREE.BufferGeometry();
+    const trailCount = 20;
+    const trailPositions = new Float32Array(trailCount * 3);
+    trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+    const trailMaterial = new THREE.PointsMaterial({ color: 0xFF00FF, size: 0.05 });
+    const trail = new THREE.Points(trailGeometry, trailMaterial);
+    scene.add(trail);
+    let trailIndex = 0;
+
+    // Animation Loop
+    let rotationSpeed = 0.01;
+    function animate() {
+      requestAnimationFrame(animate);
+      if (currentObject) {
+        currentObject.rotation.x += rotationSpeed;
+        currentObject.rotation.y += rotationSpeed;
+      }
+      particles.rotation.y += 0.001;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Event Listeners
+    document.addEventListener('mousemove', (event) => {
+      if (currentObject) {
+        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        gsap.to(currentObject.rotation, { x: mouseY * 0.5, y: mouseX * 0.5, duration: 1 });
+        rotationSpeed = 0.02;
+      }
+
+      // Mouse Trail
+      const positions = trail.geometry.attributes.position.array;
+      positions[trailIndex * 3] = (event.clientX / window.innerWidth - 0.5) * 10;
+      positions[trailIndex * 3 + 1] = -(event.clientY / window.innerHeight - 0.5) * 10;
+      positions[trailIndex * 3 + 2] = 0;
+      trail.geometry.attributes.position.needsUpdate = true;
+      trailIndex = (trailIndex + 1) % trailCount;
+    });
+
+    document.addEventListener('click', () => {
+      rotationSpeed = 0.05;
+      gsap.to({ val: rotationSpeed }, { val: 0.01, duration: 1, onUpdate: function() { rotationSpeed = this.targets()[0].val; } });
+    });
+
+    window.addEventListener('scroll', () => {
+      document.querySelectorAll('section.active .card').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+          gsap.to(card, { boxShadow: `0 8px 50px #00FF00`, borderColor: '#00FF00', duration: 0.5 });
+        }
+      });
+    });
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
