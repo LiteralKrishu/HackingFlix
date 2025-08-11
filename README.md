@@ -39,4 +39,4 @@ This project serves as a **design-first showcase**, built for hackathon evaluati
 
 ## 🌐 Live Preview
 
-👉 **[View Live on GitHub Pages](https://literalkrishu.github.io/HackingFlix/)**
+👉 **[View Live on Netlify](https://hackingflixio.netlify.app/)**
